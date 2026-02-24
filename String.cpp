@@ -237,3 +237,36 @@ void String::set(const char* cstr){
         large[len] = '\0';
     }
 }
+
+void String::set(const String& other){
+    /**
+     * void set(const String& other): Similar to set(const char*), but sources from an-
+    other’s buffer using pointer access.
+     */
+
+    //see storage being used for the string and deallocate those indexes
+    if(len <= 15){//small is being used
+        for(int i = 0; i < 16; i++){
+            small[i] = '\0';
+        }
+        large = nullptr;
+    }else if(len > 15){//large is being used
+        delete[] large;
+        large = nullptr;
+    }
+
+    //get the size that other will be
+    len = other.len;
+
+    if(other.len <= 15){
+        for(int i = 0; i < other.len + 1; i++){
+            small[i] = other.small[i];
+        }
+        large = nullptr;
+    }else if(other.len > 15){
+        large = new char[other.len + 1];
+        for(int i = 0; i < other.len + 1; i++){
+            large[i] = other.large[i];
+        }
+    }
+}
