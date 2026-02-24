@@ -302,3 +302,19 @@ const char* String::c_str() const{
         return large;
     }
 }
+
+char String::get_at(int index) const{
+    /**
+     * char get_at(int index) const: Returns the character at the given index using pointer
+       offset, or ’\0’ if out of bounds.
+     */
+
+     if(index < 0 || index > len-1){
+        return '\0';
+     }
+     if(using_small()){
+        return small[index];
+     }else{
+        return large[index];
+     }
+}
