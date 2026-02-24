@@ -8,7 +8,7 @@ String::String(){
     //create a "String", string are arrays of characters
     small[0] = '\0';//small and large arrays coexist, but their usage
                     //depends on the size of the current string
-    large = nullptr;
+    large = nullptr;//prevent free() core dump error
     len = 0;
 }
 
@@ -121,6 +121,14 @@ String::~String(){
     }
 }
 
+/**
+ * Private helper for Strings
+ * Will increase the size of a string if the needed space is greater than the current len
+ * Will compare needed size with the length of small[] for string stored using small and will copy value to a larger dynamic
+ * Compared the size of needed with large arrays and will copy the values into a larger dynamic array
+ * 
+ * @return void
+ */
 void String::grow_if_needed(int needed){//increases the size of the array if needed, without changing the length of the characters in it
 //The buffer is just the indexes for the characters of th string
 //checks if the current string can hold the required size and increases the size of the array if needed
@@ -171,8 +179,61 @@ void String::grow_if_needed(int needed){//increases the size of the array if nee
 
             len = needed;
         }else{//needed size does exceed length of the characters in the array
-            std::cout << "Large does need the size changed" << std::endl; 
+            std::cout << "Large does not need the size changed" << std::endl; 
             return;
         }
+    }
+}
+
+
+void String::set(const char* cstr){
+//see storage being used for the string and deallocate those indexes
+    if(len <= 15){//small is being used
+        for(int i = 0; i < 16; i++){
+            small[i] = '\0';
+        }
+    }else if(len > 15){//large is being used
+        delete[] large;
+        large = nullptr;
+    }
+    len = 0;
+
+//get the values from cstr and move them into their respective storage
+    const char* tempCSTR = cstr; 
+    int tempLen = 0;    
+    
+    //loop through array until '\0' is found
+    while(*cstr != '\0') {    
+        tempLen++;
+        cstr++;
+    }
+
+    len = tempLen;
+    cstr = tempCSTR;
+    
+    //empty string------------------------------------------------------------
+    if(len == 0) {
+        small[0] = '\0';
+    }
+    //-------------------------------------------------------------------------
+    //string smaller than 16 characters --------->check in future for any error regarding <= 15
+    if(len <= 15){
+        for(int i = 0; i < len; i++){
+            //set each value of the dereferenced pointer at the index i
+            small[i] = *(cstr + i);
+        }
+        ///this index will have '\0' to signify the end of the string
+        small[len] = '\0';
+        large = nullptr;
+    }
+    //--------------------------------------------------------------------------
+    if(len > 15){
+        //create new heap array of size len
+        large = new char[len + 1];
+
+        for(int i = 0; i < len; i++){
+            large[i] = *(cstr + i);
+        }
+        large[len] = '\0';
     }
 }

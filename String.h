@@ -62,7 +62,7 @@ public:
     int returnLength() const;
 
 
-    // void set(const char* cstr);
+    void set(const char* cstr);
     // void set(const String& other);
     
     // int size() const { return len; }
