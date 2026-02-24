@@ -106,10 +106,6 @@ void String::printString() const{
     std::cout << std::endl;
 }
 
-int String::returnLength() const{
-    return len;
-}
-
 /**
  * Destructor for the String class
  * Deletes the char heap array if large is not a nullptr 
@@ -185,7 +181,13 @@ void String::grow_if_needed(int needed){//increases the size of the array if nee
     }
 }
 
-
+/** Sets the current string storage to the value of cstr
+ * Deallocates any current storage and allocates new storage if needed
+ * before copying characters from cstr
+ * 
+ * @param cstr The C-style string which cstr is pointing to
+ * @return void
+ */
 void String::set(const char* cstr){
 //see storage being used for the string and deallocate those indexes
     if(len <= 15){//small is being used
@@ -238,13 +240,16 @@ void String::set(const char* cstr){
     }
 }
 
+/** Sets len to 0, deallocates large is its being used, deletes all characters from small if being used
+ * Sets this.len to other.len
+ * Copies over all characters if small is being used
+ * Copies over all characters after allocating a dynamic array if large is being used
+ * 
+ * @param other The other object which *ths is copying from
+ * @return void
+ */
 void String::set(const String& other){
-    /**
-     * void set(const String& other): Similar to set(const char*), but sources from an-
-    other’s buffer using pointer access.
-     */
-
-    //see storage being used for the string and deallocate those indexes
+      //see storage being used for the string and deallocate those indexes
     if(len <= 15){//small is being used
         for(int i = 0; i < 16; i++){
             small[i] = '\0';
@@ -268,5 +273,32 @@ void String::set(const String& other){
         for(int i = 0; i < other.len + 1; i++){
             large[i] = other.large[i];
         }
+    }
+}
+
+/** Checks what storeage type is being used
+ * If storage is small the capacity will be 15 due to small only storing 15 characters
+ * If storage is large, capacity will be the length of the characters, '\0' is not included in length of strings
+ * @return 15 or the length of the characters, '\0' is not included in the length of strings
+ */
+int String::capacity() const{//the storage capacity of the current object
+    if(len <= 15){
+        return 15;
+    }else{
+        return len;
+    }
+}
+
+/** Checks the current string storage being used
+ * If small is being used, return small
+ * If large is being used, return large 
+ * 
+ * @return pointer to small array or large dynamic array
+ */
+const char* String::c_str() const{
+    if(using_small()){
+        return small;
+    }else{
+        return large;
     }
 }

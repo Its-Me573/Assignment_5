@@ -2,7 +2,8 @@
 #include "String.h"
 
 int main(){
-    String testString;//20 large
+    String testString("Hello World");//20 large
     testString.printString();
-    std::cout << "The length of this string is:" << testString.returnLength() << std::endl;
+    const char* testPTR = testString.c_str();
+    std::cout << "The current value at test string is: " << *(testPTR+6) << std::endl;
 }

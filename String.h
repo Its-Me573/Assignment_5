@@ -59,18 +59,18 @@ public:
 
     //Helper functions for debugging
     void printString() const;
-    int returnLength() const;
-
 
     void set(const char* cstr);
     void set(const String& other);
     
-    // int size() const { return len; }
-    // int length() const { return len; }
-    // int capacity() const;
-    // bool is_empty() const { return len == 0; }
-    // const char* c_str() const;
-    // char get_at(int index) const;
+    int size() const { return len; }
+    //int length() const { return len; }
+    int capacity() const;
+    bool is_empty() const { return len == 0; }
+
+    const char* c_str() const;
+    
+    char get_at(int index) const;
     
     // void clear();
     // void append_char(char ch);
