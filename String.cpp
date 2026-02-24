@@ -49,6 +49,7 @@ String::String(const char* cstr){
         }
         ///this index will have '\0' to signify the end of the string
         small[len] = '\0';
+        large = nullptr;
     }
     //--------------------------------------------------------------------------
     if(len > 15){
@@ -60,29 +61,6 @@ String::String(const char* cstr){
         }
         large[len] = '\0';
     }
-
-    // std::cout << "This string has a length of: " << len << std::endl;
-    // for(int i = 0; i < len+1; i++){
-    //     if(large[i] == '\0'){
-    //         std::cout << "\\0" << std::endl;
-    //         break;
-    //     }
-    //     std::cout << large[i];
-    // }
-    
-    /**
-    std::cout << "This string has a length of: " << len << std::endl;
-    std::cout << "The small string array is: ";
-    for(int i = 0; i < len+1; i++){
-        if(small[i] == '\0'){
-            std::cout << " End of the string" << std::endl;
-            break;
-        }
-        std::cout << small[i];
-        
-    }
-    std::cout << std::endl;
-    */
 }
 
 /** Creates a deep copy of the other object
@@ -140,5 +118,61 @@ String::~String(){
     if(large != nullptr){
         delete[] large;
         large = nullptr;
+    }
+}
+
+void String::grow_if_needed(int needed){//increases the size of the array if needed, without changing the length of the characters in it
+//The buffer is just the indexes for the characters of th string
+//checks if the current string can hold the required size and increases the size of the array if needed
+
+//First check which type of storage is being used for the string
+    if(len <= 15){//using small[]
+         //If the size of the array-1 is < needed, allocate a array in the heap whose size will be needed and move all charcters over
+        if(needed > SMALL_SIZE-1){
+
+            //large is always nullptr when small is being used
+            large = new char[needed + 1];//needed is all the character, +1 is the '\0'
+
+            for(int i = 0; i < len+1; i++){//loop until the index of '\0'
+                large[i] = small[i];
+            }
+            small[0] = '\0';//set small to an empty string
+            len = needed;//set the current array length to the needed length, else the length of the new array wont be known
+            std::cout << "From small to large" << std::endl;
+        }else{//needed length does not exceed 15 characters
+            std::cout << "From small to nothing, size doesnt exceed" << std::endl;
+            return;
+        }
+    }else if(len > 15){//using large
+        if(needed > len){//(needed characters excluding '\0') > (current length of characters excluding '\0')
+            char* tempLarge = new char[needed + 1];//temp pointer for array of size needed + 1 for the '\0'
+
+            //copy characters from large to tempLarge
+            for(int i = 0; i < len + 1; i++){
+                tempLarge[i] = large[i];
+            }
+
+            //delete the array for large, set large to nullptr
+            delete[] large;
+            large = nullptr;
+            //allocate a new array for large whose size is equal to tempLarge
+            large = new char[needed + 1];
+
+            //copy characters from tempLarge to large
+            for(int i = 0; i < needed + 1; i++){
+                large[i] = tempLarge[i];
+            }
+
+            //delete the array for tempLarge and set to nullptr
+            delete[] tempLarge;
+            tempLarge = nullptr;
+            //set len to the needed size that the array was changed to
+            std::cout << "From large of size -> " << len << " <- to large of size -> " << needed;
+
+            len = needed;
+        }else{//needed size does exceed length of the characters in the array
+            std::cout << "Large does need the size changed" << std::endl; 
+            return;
+        }
     }
 }

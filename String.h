@@ -47,10 +47,11 @@ private:
     }
 
     // Internal helper: grow to at least new_capacity characters (excluding null)
-    //void grow_if_needed(int new_capacity_needed);
 
 public:
 
+    void grow_if_needed(int new_capacity_needed);
+    
     String(); // empty string
     String(const char* cstr); // from null-terminated C string
     String(const String& other); // copy
