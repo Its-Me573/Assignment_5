@@ -388,3 +388,32 @@ void String::append_cstr(const char* cstr){
     }
     len = lengthOfNewString;
 }
+
+void String::append(const String& other){
+    /**
+     *void append(const String& other);
+     */
+    //first get the parameter string size
+        int appendStrLen = other.len;
+        int lengthOfNewString = len + other.len;
+
+        grow_if_needed(lengthOfNewString);
+
+        for(int i = 0; i < lengthOfNewString + 1; i++){
+            if(using_small()){//current object is using small storage after resizing
+                if(other.using_small()){//current object is small and the other object is small
+
+                }else{//current object is small and other object is large
+
+                }
+            }else{//current object will use large storage after resizing
+                if(other.using_small()){//current object is large and other object is small
+
+                }else{//current object is using large and other object is using large
+
+                }
+            }
+        }
+        
+
+}

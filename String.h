@@ -75,7 +75,8 @@ public:
     void clear();
     void append_char(char ch);
     void append_cstr(const char* cstr);
-    // void append(const String& other);
+    void append(const String& other);
+    
     // // void prepend_char(char ch);
     // // void prepend_cstr(const char* cstr);
     // // void prepend(const String& other);
