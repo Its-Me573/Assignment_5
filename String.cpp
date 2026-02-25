@@ -125,12 +125,9 @@ String::~String(){
  * 
  * @return void
  */
-void String::grow_if_needed(int needed){//increases the size of the array if needed, without changing the length of the characters in it
-//The buffer is just the indexes for the characters of th string
-//checks if the current string can hold the required size and increases the size of the array if needed
-
+void String::grow_if_needed(int needed) {
 //First check which type of storage is being used for the string
-    if(len <= 15){//using small[]
+    if(using_small()){//using small[]
          //If the size of the array-1 is < needed, allocate a array in the heap whose size will be needed and move all charcters over
         if(needed > SMALL_SIZE-1){
 
@@ -141,13 +138,13 @@ void String::grow_if_needed(int needed){//increases the size of the array if nee
                 large[i] = small[i];
             }
             small[0] = '\0';//set small to an empty string
-            len = needed;//set the current array length to the needed length, else the length of the new array wont be known
-            std::cout << "From small to large" << std::endl;
+            //len = needed;//set the current array length to the needed length, else the length of the new array wont be known
+            //std::cout << "From small to large" << std::endl;
         }else{//needed length does not exceed 15 characters
-            std::cout << "From small to nothing, size doesnt exceed" << std::endl;
+            //std::cout << "From small to nothing, size doesnt exceed" << std::endl;
             return;
         }
-    }else if(len > 15){//using large
+    }else{//using large
         if(needed > len){//(needed characters excluding '\0') > (current length of characters excluding '\0')
             char* tempLarge = new char[needed + 1];//temp pointer for array of size needed + 1 for the '\0'
 
@@ -171,11 +168,11 @@ void String::grow_if_needed(int needed){//increases the size of the array if nee
             delete[] tempLarge;
             tempLarge = nullptr;
             //set len to the needed size that the array was changed to
-            std::cout << "From large of size -> " << len << " <- to large of size -> " << needed;
+            //std::cout << "From large of size -> " << len << " <- to large of size -> " << needed;
 
-            len = needed;
+            //len = needed;
         }else{//needed size does exceed length of the characters in the array
-            std::cout << "Large does not need the size changed" << std::endl; 
+            //std::cout << "Large does not need the size changed" << std::endl; 
             return;
         }
     }
@@ -303,12 +300,12 @@ const char* String::c_str() const{
     }
 }
 
-char String::get_at(int index) const{
-    /**
-     * char get_at(int index) const: Returns the character at the given index using pointer
-       offset, or ’\0’ if out of bounds.
-     */
-
+/** Checks is index is within the bounds of the string
+ * Returns the character at index if within range and '\0' if out of bounds
+ * @param index The index of the character whose character is returned
+ * @return The character at index or '\0'
+ */
+char String::get_at(int index) const {
      if(index < 0 || index > len-1){
         return '\0';
      }
@@ -317,4 +314,77 @@ char String::get_at(int index) const{
      }else{
         return large[index];
      }
+}
+
+/** Check for the storage type
+ * and set the first character to '\0' to signify an empty string
+ * Set len to 0
+ * 
+ * @return void
+ */
+void String::clear(){
+    len = 0;
+    if(using_small()){
+        small[0] = '\0';
+    }else{
+        large[0] = '\0';
+    }
+}
+
+/** Grow the string if it can't hold 1 more character at the end
+ * Check whether small or large storage is being used and
+ * put ch at the end of the character arrays\
+ * Increases the len by 1 for the new character
+ * @param ch The character appended to the end of the string
+ * @return void
+ */
+void String::append_char(char ch){
+    //check if the string needs to grow to store 1 at the end
+    grow_if_needed(len + 1);
+
+    //anything after this will be valid
+    if(using_small()){
+        small[len] = ch;
+    }else{
+        large[len] = ch;
+    }
+    len++;
+}
+
+/** Adds the parameter string to the end of the current objects string
+ * First gets the length of cstr and grows the string to the length of the new string
+ * which is current length + cstr length
+ * Insert values into the current string starting at the length of the previous string
+ * and until the length of the new string, adding each character of cstr including '\0'
+ * 
+ * @param cstr the C-style string being added
+ * @return void
+ */
+void String::append_cstr(const char* cstr){
+    //first get the parameter string size
+    int appendStrLen = 0;
+    int lengthOfNewString = 0;
+    const char* tempCSTR = cstr;//starting position
+    while(*cstr != '\0'){
+        appendStrLen++;
+        cstr++;
+    }
+    cstr = tempCSTR;//reset  cstr back to beginning position
+    lengthOfNewString = len + appendStrLen;
+    //std::cout << "The length of the parameter string is: " << appendStrLen << std::endl;
+
+    grow_if_needed(lengthOfNewString);//increase size of array without changing the len
+    /**
+    std::cout << "Length is: " << len << std::endl;
+    std::cout << "Length of new string is: " << lengthOfNewString << std::endl;
+    std::cout << "cstr is currently pointing to: " << *cstr << std::endl;
+    **/
+    for(int i = len; i < lengthOfNewString + 1; i++){//includes '\0' in the string because of +1
+        if(using_small()){
+            small[i] = cstr[i - len];
+        }else{
+            large[i] = cstr[i - len];
+        }  
+    }
+    len = lengthOfNewString;
 }

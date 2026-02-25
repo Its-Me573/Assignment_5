@@ -2,10 +2,19 @@
 #include "String.h"
 
 int main(){
-    String testString("Hello World much bigger array");//20 large
+    //small to small-works
+    //small to large-works
+    //large to large-works
+    //small and add nothing-works
+    //large and add nothing-works
+    //empty and add small-works
+    //empty and add large-works
+    String testString("");//length of 22
     testString.printString();
-    const char* testPTR = testString.c_str();
-    std::cout << "The current value at test string is: " << *(testPTR+6) << std::endl;
+    std::cout << "The length of this string is: " << testString.size() << std::endl << std::endl << std::endl;
+    
+    testString.append_cstr("Hello World and others");//length of 22 and together 22
+    testString.printString();
+    std::cout << "The length of this string is: " << testString.size() << std::endl;
 
-    std::cout << testString.get_at(29) << std::endl;
 }
