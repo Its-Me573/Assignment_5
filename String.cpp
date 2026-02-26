@@ -273,17 +273,14 @@ void String::set(const String& other){
     }
 }
 
-/** Checks what storeage type is being used
- * If storage is small the capacity will be 15 due to small only storing 15 characters
- * If storage is large, capacity will be the length of the characters, '\0' is not included in length of strings
- * @return 15 or the length of the characters, '\0' is not included in the length of strings
+//capacity is checked here as in fix this because it is not working correctly. make capacity a member variable to store somewhere because the length of a dyunamic array cannot be 
+//found, the capacity or length of an array needs to always be tracked. you cant just have a capacity for empty strings
+
+/** return the size of the string being stored, ignores '\0' in the size
+ * @return the length of the string in either small[] or large[]
  */
-int String::capacity() const{//the storage capacity of the current object
-    if(len <= 15){
-        return 15;
-    }else{
-        return len;
-    }
+int String::length() const{
+    return len;
 }
 
 /** Checks the current string storage being used
@@ -418,4 +415,235 @@ void String::append(const String& other){
         }
 
         len = lengthOfNewString;
+}
+
+/** Adds the character to the beginning of the string
+ * Increases the length of the string if needed
+ * Shifts all character to the left and sets the first character as ch
+ * 
+ * @param ch The character added to the beginning of the string
+ * @return void
+ */
+void String::prepend_char(char ch){
+    //add character to the beginning of the string
+    grow_if_needed(len + 1);
+
+    if(using_small()){
+        for(int i = len; i > 0; i--){
+            small[i] = small[i - 1];
+        }
+        small[0] = ch;
+    }else{
+        for(int i = len; i > 0; i--){
+            large[i] = large[i - 1];
+        }
+        large[0] = ch;
+    }   
+    len++;
+}
+
+/** Inserts the string to the beginning of the string
+ * Gets the size of the parameter string and resizes the array storage if necessary
+ * Shifts all characters to the right to leave space for the string to be inserted
+ * Inserts the string into allocated space by looping through the length of the input string
+ *  
+ * @param cstr The string that will will prepend to the current string
+ * @return void
+ */
+void String::prepend_cstr(const char* cstr){
+    //get the size of the C string
+    //first get the parameter string size
+    int prependStrLen = 0;
+    int lengthOfNewString = 0;
+    const char* tempCSTR = cstr;//starting position
+    while(*cstr != '\0'){
+        prependStrLen++;
+        cstr++;
+    }
+    cstr = tempCSTR;
+    lengthOfNewString = len + prependStrLen;
+    //std::cout << "The length of the parameter string is: " << appendStrLen << std::endl;
+    grow_if_needed(lengthOfNewString);
+    //std::cout << "The length of the new string will be: " << lengthOfNewString << std::endl;
+    //shift all characters to the right
+    if(using_small()){
+        for(int i = lengthOfNewString - 1; i > prependStrLen - 1; i--){
+            small[i] = small[i - prependStrLen];
+        }
+        small[lengthOfNewString] = '\0';
+
+        //insert the cstr
+        for(int i = 0; i < prependStrLen; i++){
+            small[i] = cstr[i];
+        }
+    }else{
+        for(int i = lengthOfNewString - 1; i > prependStrLen - 1; i--){
+            large[i] = large[i - prependStrLen];
+        }
+        large[lengthOfNewString] = '\0';
+
+        for(int i = 0; i < prependStrLen; i++){
+            large[i] = cstr[i];
+        }
+    }
+    len = lengthOfNewString;
+}
+
+/** Prepends the string of the other object in to the current object
+ * Check to see if resizing needs to occur before increasing the size of the storage
+ * Shifts all elements to the right to make space for the string to be inserted
+ * Inserts all characters of the string from the other object and adds '\0' to the
+ * end of the current string to signify its ending 
+ * 
+ * @param other The object whose string will be appended to the current object
+ * @return void
+ */
+void String::prepend(const String& other){
+    
+    int lengthOfNewString = len + other.len;
+    int prependStringLength = other.len;
+
+    grow_if_needed(lengthOfNewString);
+
+    //shifting the characters
+    for(int i = lengthOfNewString - 1; i > prependStringLength - 1; i--){
+
+    }
+    if(using_small()){//this using small
+        //shifting the characters
+        for(int i = lengthOfNewString - 1; i > prependStringLength - 1; i--){
+           small[i] = small[i - prependStringLength]; 
+        }
+
+        if(other.using_small()){//this using small other using small
+            for(int i = 0; i < prependStringLength; i++){
+                small[i] = other.small[i];
+            }
+        }else{//this using small other using large
+            for(int i = 0; i < prependStringLength; i++){
+                small[i] = other.large[i];
+            }
+        }
+        small[lengthOfNewString] = '\0';
+    }else{//this using large
+        //shifting the characters
+        for(int i = lengthOfNewString - 1; i > prependStringLength - 1; i--){
+           large[i] = large[i - prependStringLength]; 
+        }
+
+        if(other.using_small()){//this using large and other using small
+            for(int i = 0; i < prependStringLength; i++){
+                large[i] = other.small[i];
+            }
+        }else{//this using large and other using large
+            for(int i = 0; i < prependStringLength; i++){
+                large[i] = other.large[i];
+            }
+        }
+        large[lengthOfNewString] = '\0';
+    }
+    len = lengthOfNewString;
+}
+
+/** Deletes the count amount of characters at the positioin pos which is inclusive
+ * Checks whether small or large storage is currently being used
+ * loops through the array starting ar the positioin of the first character removed
+ * and shifting all non-removed characters to the left
+ * sets '\0' to zero
+ * 
+ * @param pos The index to start deleted characters, inclusive
+ * @param count The amount of characters to delete
+ * @return void
+ */
+void String::erase(int pos, int count){
+     int stringLengthAfter = len - count;
+     
+     //make a copy array to move over
+     if(using_small()){//currently using small storage
+        for(int i = pos; i < len; i++){
+            small[i] = small[i + count];
+        }
+        small[stringLengthAfter] = '\0';
+     }else{//using large storage
+        for(int i = pos; i < len; i++){
+            large[i] = large[i + count];
+        }
+        large[stringLengthAfter] = '\0';
+     }
+     len = stringLengthAfter;
+}
+ 
+/** Makes lowercase alphabet characters into their uppercase counterpart
+ * loops through the array and checks for the ascii value of each character
+ * if a characters is within the bounds of a and z[97,122], that character
+ * will have 32 subtracted from it making it uppercase
+ * 
+ * @return void
+ */
+void String::make_upper(){
+    //loop through the arrays. lower case characters are between 97-122
+    if(using_small()){
+        for(int i = 0; i < len; i++){
+            if(small[i] >= 97 && small[i] <= 122){//is a lowercase character from a-z
+                small[i] -= 32;
+            }
+        }
+    }else{
+        for(int i = 0; i < len; i++){
+            if(large[i] >= 97 && large[i] <= 122){//is a lowercase character from a-z
+                large[i] -= 32;
+            }
+        }
+    }
+}
+
+/** Makes uppercase alphabet characters into their lowercase counterpart
+ * loops through the array and checks for the ascii value of each character
+ * if a characters is within the bounds of A-Z, [65,90], that character
+ * will have 32 added from it making it lowercase
+ * 
+ * @return void
+ */
+void String::make_lower(){
+    //loop through the arrays. uppercase characters are between [65,90]
+    if(using_small()){
+        for(int i = 0; i < len; i++){
+            if(small[i] >= 65 && small[i] <= 90){//is an uppercase character from A-Z
+                small[i] += 32;
+            }
+        }
+    }else{
+        for(int i = 0; i < len; i++){
+            if(large[i] >= 65 && large[i] <= 90){//is an uppercase character from A-Z
+                large[i] += 32;
+            }
+        }
+    }
+}
+ 
+/** Reverses a strings characters
+ * Determines if small or large storage is being used
+ * loops through the arrays by using (length/2) which returns the amount of 
+ * loops for both odd and even strings due to integer division
+ * the current character at index of i is stored. 
+ * The character at i is set equal to the character at len-1-i which counts backwards from the string
+ * len-1-i is set to the temporary character stored
+ * 
+ * @return void
+ */
+void String::reverse(){
+    char tempCharStorage;
+     if(using_small()){
+        for(int i = 0; i < (len/2); i++){
+            tempCharStorage = small[i];
+            small[i] = small[len - 1 - i];
+            small[len - 1 - i] = tempCharStorage;
+        }
+     }else{
+        for(int i = 0; i < (len/2); i++){
+            tempCharStorage = large[i];
+            large[i] = large[len - 1 - i];
+            large[len - 1 - i] = tempCharStorage;
+        }
+     }
 }

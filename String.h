@@ -64,8 +64,8 @@ public:
     void set(const String& other);
     
     int size() const { return len; }
-    //int length() const { return len; }
-    int capacity() const;
+    int length() const { return len; }
+    int capacity() const;//return the capacity of unused space in the array
     bool is_empty() const { return len == 0; }
 
     const char* c_str() const;
@@ -77,14 +77,17 @@ public:
     void append_cstr(const char* cstr);
     void append(const String& other);
     
-    // // void prepend_char(char ch);
-    // // void prepend_cstr(const char* cstr);
-    // // void prepend(const String& other);
-    // void erase(int pos, int count = 1);
+    void prepend_char(char ch);
+    void prepend_cstr(const char* cstr);
+    void prepend(const String& other);
+    void erase(int pos, int count = 1);
     
-    // void make_upper();
-    // void make_lower();
+    void make_upper();
+    void make_lower();
     
+    void reverse();
+
+
     // void trim_left();
     // void trim_right();
     // void trim();
@@ -92,9 +95,7 @@ public:
     // void insert(int pos, const String& other);
     // void insert_cstr(int pos, const char* cstr);
     // void insert_char(int pos, char ch);
-    
-    // void reverse();
-    
+        
     // int compare(const String& other) const;
     // bool equals(const String& other) const;
     // bool equals_ignore_case(const String& other) const;
