@@ -389,31 +389,33 @@ void String::append_cstr(const char* cstr){
     len = lengthOfNewString;
 }
 
+/** Appends the string of other into the string of *this
+ * Grows the length of the string storage if needed
+ * copies characters from the storage of other and moves them to the end of the current objects string storage
+ * 
+ * @param other The objects whose string is being appened the string of *this
+ * @return void
+ */
 void String::append(const String& other){
-    /**
-     *void append(const String& other);
-     */
-    //first get the parameter string size
-        int appendStrLen = other.len;
         int lengthOfNewString = len + other.len;
 
         grow_if_needed(lengthOfNewString);
 
-        for(int i = 0; i < lengthOfNewString + 1; i++){
+        for(int i = len; i < lengthOfNewString + 1; i++){
             if(using_small()){//current object is using small storage after resizing
                 if(other.using_small()){//current object is small and the other object is small
-
+                    small[i] = other.small[i - len];
                 }else{//current object is small and other object is large
-
+                    small[i] = other.large[i - len];
                 }
             }else{//current object will use large storage after resizing
                 if(other.using_small()){//current object is large and other object is small
-
+                    large[i] = other.small[i - len];
                 }else{//current object is using large and other object is using large
-
+                    large[i] = other.large[i - len];
                 }
             }
         }
-        
 
+        len = lengthOfNewString;
 }
